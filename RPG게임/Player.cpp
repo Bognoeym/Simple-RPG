@@ -7,21 +7,24 @@ Player::Player()
 
 void Player::RockScisPaper()
 {
-	char ch = getch();
-
-	switch (ch)
+	while (1)
 	{
-	case '1':
-		m_iRSP = SCISSORS;
-		break;
+		char ch = getch();
 
-	case '2':
-		m_iRSP = ROCK;
-		break;
+		switch (ch)
+		{
+		case '1':
+			m_iRSP = SCISSORS;
+			return;
 
-	case '3':
-		m_iRSP = PAPER;
-		break;
+		case '2':
+			m_iRSP = ROCK;
+			return;
+
+		case '3':
+			m_iRSP = PAPER;
+			return;
+		}
 	}
 }
 
