@@ -22,11 +22,9 @@ public:
 	inline void ResetEXP() { m_iNowEXP = 0; }
 	inline string GetName() { return m_sName; }
 	int GetInfo(int type);
-	void LoadInfo(string fileName, int monsterCount, int startType);
+	void SetCharacter(string info, int* startType);
 	void PrintInfo(int height);
 	void ControlInfo(int type, int value);
 	void LevelUpCheck();
 	virtual void RockScisPaper() = 0;
-
-	void SetAttack(int a) { m_iAttackPoint = a; }
 };

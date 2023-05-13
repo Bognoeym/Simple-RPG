@@ -59,45 +59,103 @@ void FileManager::SaveFile(vector<Monster>* monsterList, Player* player)
 	}
 }
 
-void FileManager::LoadWeapon(string pFile, Player* player)
+bool FileManager::LoadFile(string pFile, string mFile, Player* player, 
+	vector<Monster>* monsterList, int* loadState)
+{
+	if (PlayerFile(pFile, player, loadState))
+	{
+		MonsterFile(mFile, monsterList, loadState);
+		system("cls");
+		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
+		MapDrawManager.DrawMidText("Load 완료", WIDTH, HEIGHT * 0.5);
+		getch();
+		return true;
+	}
+	else
+	{
+		system("cls");
+		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
+		MapDrawManager.DrawMidText("해당 파일이 없습니다.", WIDTH, HEIGHT * 0.5);
+	}
+
+	getch();
+	return false;
+}
+
+void FileManager::MonsterFile(string fileName, vector<Monster>* monsterList, int* loadState)
 {
 	ifstream load;
-	string str, str2;
-	int weapon;
+	string tmp;
 
-	load.open(pFile);
+	load.open(fileName);
 	if (load.is_open())
 	{
-		getline(load, str2);
-		load >> weapon;
+		Monster monster;
 
-		if (weapon == false)
-			return;
-		else
+		for (int i = 0; i < MAXMONSTER; i++)
 		{
-			Weapon* tmp;
-			load >> str;
-			if (str == "활")
-				tmp = new Bow;
-			else if (str == "대거")
-				tmp = new Dagger;
-			else if (str == "총")
-				tmp = new Gun;
-			else if (str == "장검")
-				tmp = new Sword;
-			else if (str == "지팡이")
-				tmp = new Wand;
-			else if (str == "해머")
-				tmp = new Hammer;
-			tmp->SetType(str);
-			load >> str;
-			tmp->SetName(str);
-			load >> weapon;
-			tmp->SetAttack(weapon);
-			load >> weapon;
-			tmp->SetPrice(weapon);
-			player->SetWeapon(tmp);
+			getline(load, tmp);
+			monster.SetCharacter(tmp, loadState);
+			monsterList->push_back(monster);
 		}
+
+		load.close();
+	}
+}
+
+bool FileManager::PlayerFile(string fileName, Player* player, int* loadState)
+{
+	ifstream load;
+	string tmp;
+
+	load.open(fileName);  // player 파일 읽기
+
+	if (load.is_open())
+	{
+		getline(load, tmp);
+		player->SetCharacter(tmp, loadState);
+		getline(load, tmp);
+		LoadWeapon(tmp, player);
+		load.close();
+		return true;
+	}
+
+	return false;
+}
+
+void FileManager::LoadWeapon(string info, Player* player)
+{
+	int weapon;
+	stringstream ss(info);
+	string str;
+	ss >> weapon;
+	
+	if (weapon == false)
+		return;
+	else
+	{
+		Weapon* tmp;
+		ss >> str;
+		if (str == "활")
+			tmp = new Bow;
+		else if (str == "대거")
+			tmp = new Dagger;
+		else if (str == "총")
+			tmp = new Gun;
+		else if (str == "장검")
+			tmp = new Sword;
+		else if (str == "지팡이")
+			tmp = new Wand;
+		else if (str == "해머")
+			tmp = new Hammer;
+		tmp->SetType(str);
+		ss >> str;
+		tmp->SetName(str);
+		ss >> weapon;
+		tmp->SetAttack(weapon);
+		ss >> weapon;
+		tmp->SetPrice(weapon);
+		player->SetWeapon(tmp);
 	}
 }
 

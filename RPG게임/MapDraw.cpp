@@ -57,6 +57,7 @@ void MapDraw::BoxDraw(int Start_x, int Start_y, int Width, int Height)
 		{
 			cout << "¦£";
 			for (int x = 1; x < Width - 1; x++)
+
 				cout << "¦¡";
 			cout << "¦¤";
 		}

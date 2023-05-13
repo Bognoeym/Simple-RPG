@@ -9,6 +9,7 @@
 #include "Sword.h"
 #include "Wand.h"
 #include "Hammer.h"
+//#include "Mecro.h"
 
 class FileManager
 {
@@ -19,7 +20,9 @@ public:
 	FileManager();
 	void SetWeapon(vector<Weapon*>* weaponList);
 	void SaveFile(vector<Monster>* monsterList, Player* player);
-	bool LoadFile(int select);
+	bool LoadFile(string pFile, string mFile, Player* player, vector<Monster>* monsterList, int* loadState);
+	bool PlayerFile(string fileName, Player* player, int* loadState);
+	void MonsterFile(string fileName, vector<Monster>* monsterList, int* loadState);
 	void LoadWeapon(string pFile, Player* player);
 	~FileManager();
 };

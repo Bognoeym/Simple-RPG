@@ -5,41 +5,22 @@ Character::Character()
 
 }
 
-void Character::LoadInfo(string fileName, int monsterCount, int startType)
+void Character::SetCharacter(string info, int* startType)
 {
-	ifstream load;
-	string tmp;
-	load.open(fileName);
+	stringstream ss(info);
 
-	if (load.is_open())
+	ss >> m_sName >> m_iAttackPoint >> m_iMaxHealth >> m_iMaxEXP >> m_iGetEXP >>
+		m_iLevel >> m_iGold;
+
+
+	if (*startType == STARTTYPE_LOADSTART)
 	{
-		for (int i = 0; i < monsterCount; i++)
-		{
-			getline(load, tmp);
-		}
-		load >> m_sName;
-		load >> m_iAttackPoint;
-		load >> m_iMaxHealth;
-		load >> m_iMaxEXP;
-		load >> m_iGetEXP;
-		load >> m_iLevel;
-		load >> m_iGold;
-
-		if (startType == STARTTYPE_LOADSTART)
-		{
-			load >> m_iNowEXP;
-			load >> m_iNowHealth;
-		}
-		else
-		{
-			ResetHealth();
-			ResetEXP();
-		}
+		ss >> m_iNowEXP >> m_iNowHealth;
 	}
 	else
 	{
-		cout << "파일이 존재하지 않습니다." << endl;
-		return;
+		ResetHealth();
+		ResetEXP();
 	}
 }
 

@@ -3,6 +3,7 @@
 #include<Windows.h>
 #include<conio.h>
 #include<string>
+#include<sstream>
 #include<fstream>
 #include<time.h>
 #include<vector>

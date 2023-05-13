@@ -18,8 +18,8 @@ private:
 	int m_iGameState;
 	int m_iLoadState;
 	vector<Weapon*> weaponList;
-	vector<Monster> monsterList;
-	Player player;
+	vector<Monster> monsterList, *originalMList;
+	Player player, *originalPlayer;
 	MapDraw MapDrawManager;
 	ShopManager shopManager;
 	FileManager fileManager;
@@ -27,24 +27,18 @@ private:
 
 public:
 	GameManager();
+	void Init();
+	void InitCharacter();
 	void GameStart();
-	void EnterNewGame();
+	void EnterGame();
 	void EnterLoadGame();
 	void EnterDongeon();
-	//void EnterShop(); 
 	void SetPlayerName();
-	void SetCharacter(string pFile, string mFile);
-	//void SetWeapon();
 	void PrintMonsterInfo();
-	//void PrintWeaponList(string type);
-	//void PrintWeaponInfo(vector<Weapon*> tmpList, int start, int end, int &height);
 	void RSPGameStart(int monster);
 	void RSPCheck(int playerRSP, int monsterRSP, int monsterNum);
 	void WinCheck(int win, int monsterNum);
-	//void BuyWeapon(vector<Weapon*> tmpList, int select, int page);
-	void LoadFile(int select);
-	//void LoadWeapon(string pFile);
-	//void SaveFile();
+	//void LoadFile(int select);
 	~GameManager();
 };
 

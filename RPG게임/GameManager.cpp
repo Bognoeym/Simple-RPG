@@ -3,22 +3,31 @@
 
 GameManager::GameManager()
 {
-	m_iGameState = NORMAL;
-	m_iLoadState = STARTTYPE_NEWSTART;
+	Init();
+	originalPlayer = NULL;
+	originalMList = NULL;
 }
 
-void GameManager::SetCharacter(string pFile, string mFile)
+void GameManager::Init()
 {
-	Monster monster;
-	int monsterCount = 0;
-	player.LoadInfo(pFile, monsterCount, m_iLoadState);
+	m_iGameState = NORMAL;
+	m_iLoadState = STARTTYPE_NEWSTART;
+	monsterList.clear();
+}
 
-	for (int i = 0; i < MAXMONSTER; i++)
+void GameManager::InitCharacter()
+{
+	if (originalPlayer == NULL)
 	{
-		monster.LoadInfo(mFile, monsterCount, m_iLoadState);
-		monsterList.push_back(monster);
-		monsterCount++;
+		originalPlayer = new Player();
+		originalMList = new vector<Monster>();
+
+		fileManager.LoadFile("DefaultPlayer.txt", "DefaultMonster.txt", originalPlayer,
+			originalMList, &m_iLoadState);
 	}
+
+	player = *originalPlayer;
+	monsterList = *originalMList;
 }
 
 void GameManager::GameStart()
@@ -29,23 +38,21 @@ void GameManager::GameStart()
 		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
 		MapDrawManager.FirstMenu();
 		Select = MapDrawManager.MenuSelectCursor(3, HEIGHT * 0.1, WIDTH * 0.37, HEIGHT * 0.5);
-		m_iGameState = NORMAL;
-		m_iLoadState = STARTTYPE_NEWSTART;
-		monsterList.clear();
+		Init();
 
 		switch (Select)
 		{
 		case FIRSTMENU_NEWGAME:
 			system("cls");
-			SetCharacter("DefaultPlayer.txt", "DefaultMonster.txt");
-			EnterNewGame();
+			InitCharacter();
+			EnterGame();
 			break;
 
 		case FIRSTMENU_LOADGAME:
 			system("cls");
 			EnterLoadGame();
 			if (m_iLoadState)
-				EnterNewGame();
+				EnterGame();
 			break;
 
 		case FIRSTMENU_GAMEEXIT:
@@ -54,7 +61,7 @@ void GameManager::GameStart()
 	}
 }
 
-void GameManager::EnterNewGame()
+void GameManager::EnterGame()
 {
 	int Select;
 	if (!m_iLoadState)
@@ -288,9 +295,6 @@ void GameManager::RSPCheck(int playerRSP, int monsterRSP, int monsterNum)
 
 void GameManager::EnterLoadGame()
 {
-	ifstream load;
-	string str, file;
-	int height = 0;
 	int select;
 
 	while (!m_iLoadState)
@@ -303,38 +307,12 @@ void GameManager::EnterLoadGame()
 			return;
 		else
 		{
-			//if (fileManager.LoadFile(select))
-			//{
-			//	m_iLoadState = STARTTYPE_LOADSTART;
-			//}
-			LoadFile(select);
-			height = 0;
+			m_iLoadState = STARTTYPE_LOADSTART;
+			if (!fileManager.LoadFile("SavePlayer" + to_string(select) + ".txt", "SaveMonster" + to_string(select) + ".txt",
+				&player, &monsterList, &m_iLoadState))
+				m_iLoadState = STARTTYPE_NEWSTART;
 		}
 	}
-}
-
-void GameManager::LoadFile(int select)
-{
-	ifstream load;
-	string str = "SavePlayer" + to_string(select) + ".txt";
-
-	load.open(str);
-	if (load.is_open())
-	{
-		m_iLoadState = STARTTYPE_LOADSTART;
-		SetCharacter(str, "SaveMonster" + to_string(select) + ".txt");
-		fileManager.LoadWeapon(str, &player);
-		system("cls");
-		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
-		MapDrawManager.DrawMidText("Load 완료", WIDTH, HEIGHT * 0.5);
-	}
-	else
-	{
-		system("cls");
-		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
-		MapDrawManager.DrawMidText("해당 파일이 없습니다.", WIDTH, HEIGHT * 0.5);
-	}
-	getch();
 }
 
 void GameManager::SetPlayerName()
@@ -362,4 +340,7 @@ GameManager::~GameManager()
 {
 	for (int i = 0; i < weaponList.size(); i++)
 		delete weaponList.at(i);
+
+	delete originalPlayer;
+	delete originalMList;
 }
