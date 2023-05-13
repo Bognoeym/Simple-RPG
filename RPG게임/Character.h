@@ -27,4 +27,6 @@ public:
 	void ControlInfo(int type, int value);
 	void LevelUpCheck();
 	virtual void RockScisPaper() = 0;
+
+	void SetAttack(int a) { m_iAttackPoint = a; }
 };

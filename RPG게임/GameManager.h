@@ -9,6 +9,8 @@
 #include "Sword.h"
 #include "Wand.h"
 #include "Hammer.h"
+#include "FileManager.h"
+#include "ShopManager.h"
 
 class GameManager
 {
@@ -19,26 +21,30 @@ private:
 	vector<Monster> monsterList;
 	Player player;
 	MapDraw MapDrawManager;
+	ShopManager shopManager;
+	FileManager fileManager;
+
+
 public:
 	GameManager();
 	void GameStart();
 	void EnterNewGame();
 	void EnterLoadGame();
 	void EnterDongeon();
-	void EnterShop(); 
+	//void EnterShop(); 
 	void SetPlayerName();
 	void SetCharacter(string pFile, string mFile);
-	void SetWeapon();
+	//void SetWeapon();
 	void PrintMonsterInfo();
-	void PrintWeaponList(string type);
-	void PrintWeaponInfo(vector<Weapon*> tmpList, int start, int end, int &height);
+	//void PrintWeaponList(string type);
+	//void PrintWeaponInfo(vector<Weapon*> tmpList, int start, int end, int &height);
 	void RSPGameStart(int monster);
 	void RSPCheck(int playerRSP, int monsterRSP, int monsterNum);
 	void WinCheck(int win, int monsterNum);
-	void BuyWeapon(vector<Weapon*> tmpList, int select, int page);
+	//void BuyWeapon(vector<Weapon*> tmpList, int select, int page);
 	void LoadFile(int select);
-	void LoadWeapon(string pFile);
-	void SaveFile();
+	//void LoadWeapon(string pFile);
+	//void SaveFile();
 	~GameManager();
 };
 

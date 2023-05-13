@@ -142,6 +142,7 @@
     <ClInclude Include="Bow.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Dagger.h" />
+    <ClInclude Include="FileManager.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="Gun.h" />
     <ClInclude Include="Hammer.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="Mecro.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="ShopManager.h" />
     <ClInclude Include="Sword.h" />
     <ClInclude Include="Wand.h" />
     <ClInclude Include="Weapon.h" />
@@ -157,6 +159,7 @@
     <ClCompile Include="Bow.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Dagger.cpp" />
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Gun.cpp" />
     <ClCompile Include="Hammer.cpp" />
@@ -164,6 +167,7 @@
     <ClCompile Include="MapDraw.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="ShopManager.cpp" />
     <ClCompile Include="Sword.cpp" />
     <ClCompile Include="Wand.cpp" />
     <ClCompile Include="Weapon.cpp" />

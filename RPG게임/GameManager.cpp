@@ -95,12 +95,13 @@ void GameManager::EnterNewGame()
 
 		case GAMEMENU_WEAPONSHOP:
 			system("cls");
-			EnterShop();
+			fileManager.SetWeapon(&weaponList);
+			shopManager.EnterShop(&weaponList, &player);
 			break;
 
 		case GAMEMENU_SAVE:
 			system("cls");
-			SaveFile();
+			fileManager.SaveFile(&monsterList, &player);
 			break;
 
 		case GAMEMENU_EXIT:
@@ -285,142 +286,6 @@ void GameManager::RSPCheck(int playerRSP, int monsterRSP, int monsterNum)
 	}
 }
 
-void GameManager::EnterShop()
-{
-	int Select;
-	SetWeapon();
-	while (1)
-	{
-		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
-		MapDrawManager.ShopMenu();
-		Select = MapDrawManager.MenuSelectCursor(7, 2, WIDTH * 0.25, HEIGHT * 0.25 + 2);
-
-		switch (Select)
-		{
-		case WEAPON_DAGGER:
-			system("cls");
-			PrintWeaponList("대거");
-			break;
-
-		case WEAPON_GUN:
-			system("cls");
-			PrintWeaponList("총");
-			break;
-
-		case WEAPON_SWORD:
-			system("cls");
-			PrintWeaponList("장검");
-			break;
-
-		case WEAPON_WAND:
-			system("cls");
-			PrintWeaponList("지팡이");
-			break;
-
-		case WEAPON_BOW:
-			system("cls");
-			PrintWeaponList("활");
-			break;
-
-		case WEAPON_HAMMER:
-			system("cls");
-			PrintWeaponList("해머");
-			break;
-
-		case 7:
-			system("cls");
-			return;
-		}
-	}
-}
-
-void GameManager::PrintWeaponList(string type)
-{
-	vector<Weapon*> tmpList;
-	int height;
-	int page = 1;
-	int select, size;
-
-	for (int i = 0; i < weaponList.size(); i++)
-	{
-		if (weaponList.at(i)->GetType() == type)
-			tmpList.push_back(weaponList.at(i));
-	}
-
-	while (1)
-	{
-		system("cls");
-		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
-		MapDrawManager.DrawMidText("보유 Gold : " + to_string(player.GetInfo(INFOTYPE_GOLD)), WIDTH, HEIGHT * 0.07);
-		MapDrawManager.DrawMidText(type + " Shop", WIDTH, HEIGHT * 0.07 + 2);
-		height = 4;
-
-		if (tmpList.size() > MAXPAGEOFWP && page == PAGE1) 
-		{
-			YELLOW;
-			PrintWeaponInfo(tmpList, 0, MAXPAGEOFWP, height);
-			ORIGINAL;
-		}
-		else if (tmpList.size() > MAXPAGEOFWP && page == PAGE2)
-		{
-			YELLOW;
-			PrintWeaponInfo(tmpList, MAXPAGEOFWP, tmpList.size(), height);
-			ORIGINAL;
-		}
-		else
-		{
-			YELLOW;
-			PrintWeaponInfo(tmpList, 0, tmpList.size(), height);
-			ORIGINAL;
-		}
-
-		if (tmpList.size() < MAXPAGEOFWP)
-			size = tmpList.size();
-		else if (tmpList.size() > MAXPAGEOFWP && page == PAGE2)
-			size = tmpList.size() - MAXPAGEOFWP;
-		else
-			size = MAXPAGEOFWP;
-
-		MapDrawManager.DrawMidText("이전페이지", WIDTH, HEIGHT * 0.07 + height);
-		MapDrawManager.DrawMidText("다음페이지", WIDTH, HEIGHT * 0.07 + height + 3);
-		MapDrawManager.DrawMidText("나가기", WIDTH, HEIGHT * 0.07 + height + 6);
-
-		select = MapDrawManager.MenuSelectCursor(size + 3, 3, WIDTH * 0.2, HEIGHT * 0.07 + 4);
-
-		if (select == size + 3)
-			return;
-		if ((select == size + 1 && page == PAGE1) || (select == size + 2 && page == PAGE2))
-			continue;
-		else if (select == size + 2)  // 다음 페이지
-			page++;
-		else if (select == size + 1)  // 이전 페이지
-			page--;
-		else
-			BuyWeapon(tmpList, select, page);
-	}
-	getch();
-}
-
-void GameManager::BuyWeapon(vector<Weapon*> tmpList, int select, int page)
-{
-	Weapon* tmp;
-
-	if (page == PAGE1)
-	{
-		tmp = tmpList.at(select - 1);
-	}
-	else if (page == PAGE2)
-	{
-		tmp = tmpList.at(MAXPAGEOFWP + select - 1);
-	}
-
-	if (player.GetInfo(INFOTYPE_GOLD) < tmp->GetPrice())
-		return;
-
-	player.ControlInfo(INFOTYPE_GOLD, -tmp->GetPrice());
-	player.SetWeapon(tmp);
-}
-
 void GameManager::EnterLoadGame()
 {
 	ifstream load;
@@ -438,6 +303,10 @@ void GameManager::EnterLoadGame()
 			return;
 		else
 		{
+			//if (fileManager.LoadFile(select))
+			//{
+			//	m_iLoadState = STARTTYPE_LOADSTART;
+			//}
 			LoadFile(select);
 			height = 0;
 		}
@@ -454,7 +323,7 @@ void GameManager::LoadFile(int select)
 	{
 		m_iLoadState = STARTTYPE_LOADSTART;
 		SetCharacter(str, "SaveMonster" + to_string(select) + ".txt");
-		LoadWeapon(str);
+		fileManager.LoadWeapon(str, &player);
 		system("cls");
 		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
 		MapDrawManager.DrawMidText("Load 완료", WIDTH, HEIGHT * 0.5);
@@ -466,160 +335,6 @@ void GameManager::LoadFile(int select)
 		MapDrawManager.DrawMidText("해당 파일이 없습니다.", WIDTH, HEIGHT * 0.5);
 	}
 	getch();
-}
-
-void GameManager::LoadWeapon(string pFile)
-{
-	ifstream load;
-	string str, str2;
-	int weapon;
-
-	load.open(pFile);
-	if (load.is_open())
-	{
-		getline(load, str2);
-		load >> weapon;
-
-		if (weapon == false)
-			return;
-		else
-		{
-			Weapon* tmp;
-			load >> str;
-			if (str == "활")
-				tmp = new Bow;
-			else if (str == "대거")
-				tmp = new Dagger;
-			else if (str == "총")
-				tmp = new Gun;
-			else if (str == "장검")
-				tmp = new Sword;
-			else if (str == "지팡이")
-				tmp = new Wand;
-			else if (str == "해머")
-				tmp = new Hammer;
-			tmp->SetType(str);
-			load >> str;
-			tmp->SetName(str);
-			load >> weapon;
-			tmp->SetAttack(weapon);
-			load >> weapon;
-			tmp->SetPrice(weapon);
-			player.SetWeapon(tmp);
-		}
-	}
-}
-
-void GameManager::SaveFile()
-{
-	ofstream save;
-	string file = "SavePlayer";
-	int select;
-
-	MapDrawManager.FileMenu();
-	select = MapDrawManager.MenuSelectCursor(11, 2, WIDTH * 0.2, HEIGHT * 0.15);
-
-	if (select == 11)
-		return;
-	else
-	{
-		file += to_string(select) + ".txt";  // 플레이어 저장
-		save.open(file);
-		if (save.is_open())
-		{
-			save << player.GetName() << " ";
-			for (int i = INFOTYPE_ATTACK; i <= INFOTYPE_NOWHEALTH; i++)
-			{
-				save << player.GetInfo(i) << " ";
-			}
-
-			save << "\n" << player.GetHasWeapon() << " ";
-			if (player.GetHasWeapon())
-			{
-				Weapon* tmp = player.GetWeapon();
-				save << tmp->GetType() << " " << tmp->GetName() << " " << tmp->GetAttack() << " " << tmp->GetPrice();
-			}
-			save.close();
-		}
-
-		file = "SaveMonster" + to_string(select) + ".txt";  // 몬스터 저장
-		save.open(file);
-		if (save.is_open())
-		{
-			for (int i = 0; i < MAXMONSTER; i++)
-			{
-				save << monsterList.at(i).GetName() << " ";
-				for (int j = INFOTYPE_ATTACK; j <= INFOTYPE_NOWHEALTH; j++)
-				{
-					save << monsterList.at(i).GetInfo(j) << " ";
-				}
-				save << "\n";
-			}
-			save.close();
-		}
-		system("cls");
-		MapDrawManager.BoxDraw(0, 0, WIDTH, HEIGHT);
-		MapDrawManager.DrawMidText("Save 완료", WIDTH, HEIGHT * 0.5);
-		getch();
-	}
-}
-
-void GameManager::SetWeapon()
-{
-	ifstream load;
-	Weapon* tmp;
-	string str;
-	int i;
-
-	load.open("WeaponList.txt");
-
-	if (load.is_open())
-	{
-		while (!load.eof())
-		{
-			load >> str;
-
-			if (str == "Bow")
-			{
-				tmp = new Bow;
-				tmp->SetType("활");
-			}
-			else if (str == "Dagger")
-			{
-				tmp = new Dagger;
-				tmp->SetType("대거");
-			}
-			else if (str == "Gun")
-			{
-				tmp = new Gun;
-				tmp->SetType("총");
-			}
-			else if (str == "Sword")
-			{
-				tmp = new Sword;
-				tmp->SetType("장검");
-			}
-			else if (str == "Wand")
-			{
-				tmp = new Wand;
-				tmp->SetType("지팡이");
-			}
-			else if (str == "Hammer")
-			{
-				tmp = new Hammer;
-				tmp->SetType("해머");
-			}
-			load >> str;
-			tmp->SetName(str);
-			load >> i;
-			tmp->SetAttack(i);
-			load >> i;
-			tmp->SetPrice(i);
-			weaponList.push_back(tmp);
-		}
-	}
-	else
-		cout << "파일 없음" << endl;
 }
 
 void GameManager::SetPlayerName()
@@ -640,15 +355,6 @@ void GameManager::PrintMonsterInfo()
 	{
 		iter->PrintInfo(height);
 		height += 4;
-	}
-}
-
-void GameManager::PrintWeaponInfo(vector<Weapon*> tmpList, int start, int end, int &height)
-{
-	for (int i = start; i < end; i++)
-	{
-		tmpList.at(i)->PrintInfo(HEIGHT * 0.07 + height);
-		height += 3;
 	}
 }
 
